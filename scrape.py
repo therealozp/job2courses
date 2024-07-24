@@ -2,7 +2,7 @@ from playwright.async_api import async_playwright
 import asyncio
 
 async def main(abbrev, number): 
-    URL = f'https://usfonline.admin.usf.edu/pls/prod/wp_search_catalog_db?p_subj={abbrev}&p_crse={number}&p_term=202501'
+    URL = env.URL
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
