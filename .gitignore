@@ -3,3 +3,5 @@ html/
 *.html
 .venv/
 __pycache__/
+data/
+!/data/course-inventory.csv
