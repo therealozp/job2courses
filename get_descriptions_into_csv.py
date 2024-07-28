@@ -20,13 +20,13 @@ def get_truly_random_intervals():
     if r < chance_sub_15:
         return random.randint(3, 15)
     elif r < chance_sub_40:
-        return random.randint(20, 40)
+        return random.randint(15, 20)
     else:
-        return random.randint(40, 60)
+        return random.randint(20, 30)
     
 
 async def greedy_scrape():
-    df = pd.read_csv('course-inventory.csv')
+    df = pd.read_csv('data/course-inventory.csv')
     cache_df = pd.DataFrame()
     try: 
         for i, row in tqdm(df.iterrows(), total=df.shape[0]):
@@ -34,28 +34,21 @@ async def greedy_scrape():
             number = row['Number']
             url = get_course_url(course, number, '202501')
             print(f'attempting to scrape {course}{number}...')
+            random_interval = get_truly_random_intervals()
             try:
                 returned_html = await scrape_raw_html(url)
-            except Exception as e:
-                print(f'error occurred while scraping {course}{number}.')
-                with open('errored_columns_log.txt', 'a') as f:
-                    f.write(f'parsing error encountered: {course}{number}\n')
-                continue
-            
-            try:
                 returned_mapping = get_course_information_from_html(returned_html)
                 assert len(returned_mapping) == 10
                 course_mapping = pd.DataFrame([get_course_information_from_html(returned_html)])
                 cache_df = pd.concat([cache_df, course_mapping], ignore_index=True)
+                print(f'scraping complete, now sleeping for {random_interval} seconds')
             except Exception as e:
-                print(f'error occurred while parsing {course}{number}: insufficient number of columns')
+                print(f'error occurred while scraping {course}{number}. now sleeping the thread for {random_interval} seconds')
                 with open('errored_columns_log.txt', 'a') as f:
-                    f.write(f'insufficient columns encountered: {course}{number}\n')
+                    f.write(f'parsing error encountered: {course}{number}\n')
                 continue
-            
-            random_interval = get_truly_random_intervals()
-            print(f'scraping complete, now sleeping for {random_interval} seconds')
-            await asyncio.sleep(random_interval)
+            finally: 
+                await asyncio.sleep(random_interval)
     except Exception as e:
         print('An error occurred:', e)
     finally:

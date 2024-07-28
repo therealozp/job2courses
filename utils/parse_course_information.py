@@ -16,8 +16,7 @@ def get_course_information_from_html(raw_html):
             value = table_elements[i + 1].getText().replace('\n', '')
             i += 2
         mapping[key] = value
-    if len(mapping) < 10:
-        raise Exception("Course information does not have enough fields to fill in.")
+    
     return mapping
 
 if __name__ == '__main__':
